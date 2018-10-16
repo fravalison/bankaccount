@@ -22,21 +22,21 @@ public class Account {
     public void displayHistory(LocalDate date) {
         accountEvents.stream()
                 .filter(isScopedEvent(date))
-                .forEach(accountEvent -> System.out.println(accountEvent + " " + getBalance(accountEvent.getEventDate()) ));
+                .forEach(accountEvent -> System.out.println(accountEvent + " balance " + getBalance(accountEvent.getEventDate()) ));
     }
 
     double getBalance(LocalDate date) {
-        double debitAmount = accountEvents.stream()
-                .filter(accountEvent -> accountEvent.getType() == AccountEvent.AccountEventType.DEBIT)
-                .filter(isScopedEvent(date))
-                .mapToDouble(AccountEvent::getAmount)
-                .sum();
-        double creditAmount = accountEvents.stream()
-                .filter(accountEvent -> accountEvent.getType() == AccountEvent.AccountEventType.CREDIT)
-                .filter(isScopedEvent(date))
-                .mapToDouble(AccountEvent::getAmount)
-                .sum();
+        double debitAmount = getTotalAmount(date, AccountEvent.AccountEventType.DEBIT);;
+        double creditAmount = getTotalAmount(date, AccountEvent.AccountEventType.CREDIT);
         return creditAmount - debitAmount;
+    }
+
+    private double getTotalAmount(LocalDate date, AccountEvent.AccountEventType type) {
+        return accountEvents.stream()
+                .filter(accountEvent -> accountEvent.getType() == type)
+                .filter(isScopedEvent(date))
+                .mapToDouble(AccountEvent::getAmount)
+                .sum();
     }
 
     private void registerAccountEvent(AccountEvent accountEvent) {
@@ -56,7 +56,7 @@ public class Account {
         account.makeAWithdrawal(100, of(2018, 10, 5));
         account.makeAWithdrawal(120, of(2018, 10, 12));
 
-        account.displayHistory(of(2018, 10, 2));
+        account.displayHistory(of(2018, 10, 4));
     }
 
 }
